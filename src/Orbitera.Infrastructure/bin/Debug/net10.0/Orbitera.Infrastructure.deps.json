@@ -1,0 +1,56 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "Orbitera.Infrastructure/1.0.0": {
+        "dependencies": {
+          "Orbitera.Application": "1.0.0",
+          "Orbitera.Domain": "1.0.0"
+        },
+        "runtime": {
+          "Orbitera.Infrastructure.dll": {}
+        }
+      },
+      "Orbitera.Application/1.0.0": {
+        "dependencies": {
+          "Orbitera.Domain": "1.0.0"
+        },
+        "runtime": {
+          "Orbitera.Application.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "Orbitera.Domain/1.0.0": {
+        "runtime": {
+          "Orbitera.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Orbitera.Infrastructure/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Orbitera.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Orbitera.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

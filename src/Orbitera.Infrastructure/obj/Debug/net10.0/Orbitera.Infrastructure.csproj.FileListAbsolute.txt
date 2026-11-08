@@ -1,0 +1,17 @@
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\bin\Debug\net10.0\Orbitera.Infrastructure.deps.json
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\bin\Debug\net10.0\Orbitera.Infrastructure.dll
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\bin\Debug\net10.0\Orbitera.Infrastructure.pdb
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\bin\Debug\net10.0\Orbitera.Application.dll
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\bin\Debug\net10.0\Orbitera.Domain.dll
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\bin\Debug\net10.0\Orbitera.Application.pdb
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\bin\Debug\net10.0\Orbitera.Domain.pdb
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\obj\Debug\net10.0\Orbitera.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\obj\Debug\net10.0\Orbitera.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\obj\Debug\net10.0\Orbitera.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\obj\Debug\net10.0\Orbitera.Infrastructure.AssemblyInfo.cs
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\obj\Debug\net10.0\Orbitera.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\obj\Debug\net10.0\Orbitera.60F03C6C.Up2Date
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\obj\Debug\net10.0\Orbitera.Infrastructure.dll
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\obj\Debug\net10.0\refint\Orbitera.Infrastructure.dll
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\obj\Debug\net10.0\Orbitera.Infrastructure.pdb
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\obj\Debug\net10.0\ref\Orbitera.Infrastructure.dll

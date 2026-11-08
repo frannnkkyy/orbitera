@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "N+lk2G9ZTHo=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\carlo\\OneDrive\\Documentos\\orbitera\\src\\Orbitera.App\\Orbitera.App.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\carlo\\.nuget\\packages\\communitytoolkit.mvvm\\8.4.2\\communitytoolkit.mvvm.8.4.2.nupkg.sha512",
+    "C:\\Users\\carlo\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\10.0.14\\microsoft.extensions.dependencyinjection.10.0.14.nupkg.sha512",
+    "C:\\Users\\carlo\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.14\\microsoft.extensions.dependencyinjection.abstractions.10.0.14.nupkg.sha512"
+  ],
+  "logs": []
+}
