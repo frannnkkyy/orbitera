@@ -4,7 +4,9 @@ using Orbitera.Application;
 using Orbitera.Domain;
 using Orbitera.App.Services;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Security;
+using System.Windows;
 using System.Windows.Media;
 
 namespace Orbitera.App.ViewModels;
@@ -14,6 +16,8 @@ public partial class AtlasViewModel : PageViewModel
     private const double TreemapWidth = 1000;
     private const double TreemapHeight = 520;
     private readonly ScanStorageUseCase _scanStorage;
+    private readonly CreateStorageSnapshotUseCase _createSnapshot;
+    private readonly StorageAnalysisSession _analysisSession;
     private readonly IFolderPickerService _folderPicker;
     private CancellationTokenSource? _scanCancellation;
 
@@ -68,7 +72,11 @@ public partial class AtlasViewModel : PageViewModel
     [ObservableProperty]
     private AtlasItemViewModel? _selectedItem;
 
-    public AtlasViewModel(ScanStorageUseCase scanStorage, IFolderPickerService folderPicker)
+    public AtlasViewModel(
+        ScanStorageUseCase scanStorage,
+        CreateStorageSnapshotUseCase createSnapshot,
+        StorageAnalysisSession analysisSession,
+        IFolderPickerService folderPicker)
         : base(
             "ATLAS",
             "Una vista distinta de tu almacenamiento.",
@@ -76,6 +84,8 @@ public partial class AtlasViewModel : PageViewModel
             "Selecciona una unidad o carpeta para generar tu primer mapa.")
     {
         _scanStorage = scanStorage;
+        _createSnapshot = createSnapshot;
+        _analysisSession = analysisSession;
         _folderPicker = folderPicker;
         _ = LoadVolumesCommand.ExecuteAsync(null);
     }
@@ -85,6 +95,14 @@ public partial class AtlasViewModel : PageViewModel
     public ObservableCollection<AtlasItemViewModel> TreemapItems { get; } = [];
 
     public bool HasScanResult => ScanResult is not null;
+
+    public bool HasTreemapItems => TreemapItems.Count > 0;
+
+    public bool IsIdle => !IsScanning;
+
+    public string EmptyMapMessage => HasScanResult
+        ? "Esta carpeta no contiene elementos con tamaño para representar."
+        : "Selecciona una unidad o carpeta y analiza para generar el mapa.";
 
     public bool CanNavigateUp => CurrentDirectory?.Parent is not null;
 
@@ -105,6 +123,7 @@ public partial class AtlasViewModel : PageViewModel
         {
             var volumes = await Task.Run(_scanStorage.GetAvailableVolumes);
             Volumes = new ObservableCollection<StorageVolume>(volumes);
+            SelectedVolume = Volumes.FirstOrDefault(volume => volume.IsReady);
 
             if (Volumes.Count == 0)
             {
@@ -166,9 +185,23 @@ public partial class AtlasViewModel : PageViewModel
             ScanResult = result;
             CurrentDirectory = result.Root;
             CurrentPath = result.Root.FullPath;
+            _analysisSession.Publish(result.Root, DateTime.UtcNow);
             UpdateVisibleEntries();
             ProgressValue = 100;
             StatusMessage = $"Análisis completado en {result.Duration.TotalSeconds:F1} s.";
+
+            try
+            {
+                await _createSnapshot.ExecuteAsync(result, cancellation.Token);
+                StatusMessage = result.InaccessibleEntries == 0 && result.SkippedReparsePoints == 0
+                    ? $"Análisis completado y guardado en Orbit History · {result.Duration.TotalSeconds:F1} s."
+                    : "Análisis parcial guardado. No se podrá comparar con fiabilidad.";
+            }
+            catch (SnapshotPersistenceException exception)
+            {
+                ErrorMessage = exception.Message;
+                StatusMessage = "Análisis completado, pero no se pudo guardar en Orbit History.";
+            }
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
         {
@@ -247,6 +280,7 @@ public partial class AtlasViewModel : PageViewModel
     {
         CurrentItems.Clear();
         TreemapItems.Clear();
+        OnPropertyChanged(nameof(HasTreemapItems));
 
         if (CurrentDirectory is null)
         {
@@ -272,6 +306,8 @@ public partial class AtlasViewModel : PageViewModel
             item.SetBounds(layoutItem.Bounds);
             TreemapItems.Add(item);
         }
+
+        OnPropertyChanged(nameof(HasTreemapItems));
     }
 
     private static bool IsExpectedScanException(Exception exception) =>
@@ -284,6 +320,7 @@ public partial class AtlasViewModel : PageViewModel
     {
         ScanCommand.NotifyCanExecuteChanged();
         CancelScanCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(IsIdle));
     }
 
     partial void OnSelectedVolumeChanged(StorageVolume? value)
@@ -304,8 +341,12 @@ public partial class AtlasViewModel : PageViewModel
         OpenSelectedFolderCommand.NotifyCanExecuteChanged();
     }
 
-    partial void OnScanResultChanged(StorageScanResult? value) =>
+    partial void OnScanResultChanged(StorageScanResult? value)
+    {
         OnPropertyChanged(nameof(HasScanResult));
+        OnPropertyChanged(nameof(EmptyMapMessage));
+    }
+
 }
 
 public sealed partial class AtlasItemViewModel : ObservableObject

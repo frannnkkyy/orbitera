@@ -33,7 +33,7 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void Navigate(NavigationItemViewModel navigationItem)
+    private async Task NavigateAsync(NavigationItemViewModel navigationItem)
     {
         foreach (var item in NavigationItems)
         {
@@ -41,6 +41,15 @@ public partial class MainWindowViewModel : ObservableObject
         }
 
         CurrentViewModel = navigationItem.Page;
+
+        if (CurrentViewModel is HistoryViewModel history)
+        {
+            await history.RefreshCommand.ExecuteAsync(null);
+        }
+        else if (CurrentViewModel is DevInsightsViewModel devInsights)
+        {
+            await devInsights.AnalyzeCommand.ExecuteAsync(null);
+        }
     }
 
     public ObservableCollection<NavigationItemViewModel> NavigationItems { get; }

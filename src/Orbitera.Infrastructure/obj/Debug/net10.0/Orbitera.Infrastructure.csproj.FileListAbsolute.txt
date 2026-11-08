@@ -15,3 +15,4 @@ C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\obj\Debu
 C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\obj\Debug\net10.0\refint\Orbitera.Infrastructure.dll
 C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\obj\Debug\net10.0\Orbitera.Infrastructure.pdb
 C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\obj\Debug\net10.0\ref\Orbitera.Infrastructure.dll
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Infrastructure\obj\Debug\net10.0\Orbitera.Infrastructure.sourcelink.json

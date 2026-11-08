@@ -9,3 +9,4 @@ C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Domain\obj\Debug\net10.
 C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Domain\obj\Debug\net10.0\refint\Orbitera.Domain.dll
 C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Domain\obj\Debug\net10.0\Orbitera.Domain.pdb
 C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Domain\obj\Debug\net10.0\ref\Orbitera.Domain.dll
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Domain\obj\Debug\net10.0\Orbitera.Domain.sourcelink.json

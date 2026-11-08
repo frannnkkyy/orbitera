@@ -13,3 +13,4 @@ C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Application\obj\Debug\n
 C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Application\obj\Debug\net10.0\refint\Orbitera.Application.dll
 C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Application\obj\Debug\net10.0\Orbitera.Application.pdb
 C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Application\obj\Debug\net10.0\ref\Orbitera.Application.dll
+C:\Users\carlo\OneDrive\Documentos\orbitera\src\Orbitera.Application\obj\Debug\net10.0\Orbitera.Application.sourcelink.json

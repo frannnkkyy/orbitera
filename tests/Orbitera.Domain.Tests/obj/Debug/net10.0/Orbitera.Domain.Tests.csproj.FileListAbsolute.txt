@@ -98,3 +98,4 @@ C:\Users\carlo\OneDrive\Documentos\orbitera\tests\Orbitera.Domain.Tests\obj\Debu
 C:\Users\carlo\OneDrive\Documentos\orbitera\tests\Orbitera.Domain.Tests\obj\Debug\net10.0\Orbitera.Domain.Tests.pdb
 C:\Users\carlo\OneDrive\Documentos\orbitera\tests\Orbitera.Domain.Tests\obj\Debug\net10.0\Orbitera.Domain.Tests.genruntimeconfig.cache
 C:\Users\carlo\OneDrive\Documentos\orbitera\tests\Orbitera.Domain.Tests\obj\Debug\net10.0\ref\Orbitera.Domain.Tests.dll
+C:\Users\carlo\OneDrive\Documentos\orbitera\tests\Orbitera.Domain.Tests\obj\Debug\net10.0\Orbitera.Domain.Tests.sourcelink.json

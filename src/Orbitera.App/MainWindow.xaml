@@ -195,19 +195,20 @@
                                       ItemsSource="{Binding Volumes}"
                                       SelectedItem="{Binding SelectedVolume}"
                                       DisplayMemberPath="Name"
-                                      IsEnabled="{Binding IsScanning}"
+                                      IsEnabled="{Binding IsIdle}"
                                       ToolTip="Selecciona una unidad disponible" />
                             <TextBox Grid.Column="1"
                                      Height="36"
                                      Padding="10,8"
                                      VerticalContentAlignment="Center"
                                      Text="{Binding RootPath, UpdateSourceTrigger=PropertyChanged}"
-                                     IsEnabled="{Binding IsScanning, Converter={StaticResource InverseBooleanConverter}}"
+                                     IsEnabled="{Binding IsIdle}"
                                      ToolTip="Ruta de la unidad o carpeta que deseas analizar" />
                             <Button Grid.Column="2"
                                     Margin="8,0,0,0"
                                     Content="Examinar…"
                                     Command="{Binding BrowseFolderCommand}"
+                                    IsEnabled="{Binding IsIdle}"
                                     Style="{StaticResource QuietButtonStyle}" />
                             <Button Grid.Column="3"
                                     Margin="8,0,0,0"
@@ -251,7 +252,7 @@
                                    FontSize="11"
                                    TextWrapping="Wrap" />
                         <TextBlock Margin="0,8,0,0"
-                                   Text="{Binding IsLoadingVolumes, StringFormat=Consultando unidades disponibles…}"
+                                   Text="Consultando unidades disponibles…"
                                    Visibility="{Binding IsLoadingVolumes, Converter={StaticResource BooleanToVisibilityConverter}}"
                                    Style="{StaticResource CaptionTextStyle}" />
                     </StackPanel>
@@ -278,10 +279,10 @@
                     </Border>
                 </UniformGrid>
                 <TextBlock Margin="2,8,0,0"
-                           Text="{Binding InaccessibleEntries, StringFormat=Elementos inaccesibles: {0}}"
+                           Text="{Binding InaccessibleEntries, StringFormat='Elementos inaccesibles: {0}'}"
                            Style="{StaticResource CaptionTextStyle}" />
                 <TextBlock Margin="2,3,0,0"
-                           Text="{Binding SkippedReparsePoints, StringFormat=Puntos de reanálisis omitidos para evitar ciclos: {0}}"
+                           Text="{Binding SkippedReparsePoints, StringFormat='Puntos de reanálisis omitidos para evitar ciclos: {0}'}"
                            Style="{StaticResource CaptionTextStyle}" />
 
                 <DockPanel Margin="0,22,0,11">
@@ -349,8 +350,8 @@
                                                     <StackPanel MaxWidth="330">
                                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" />
                                                         <TextBlock Margin="0,5,0,0" Text="{Binding FullPath}" Foreground="{StaticResource MutedTextBrush}" TextWrapping="Wrap" />
-                                                        <TextBlock Margin="0,4,0,0" Text="{Binding SizeDisplay, StringFormat=Tamaño: {0}}" />
-                                                        <TextBlock Margin="0,3,0,0" Text="{Binding CategoryDisplay, StringFormat=Categoría: {0}}" />
+                                                        <TextBlock Margin="0,4,0,0" Text="{Binding SizeDisplay, StringFormat='Tamaño: {0}'}" />
+                                                        <TextBlock Margin="0,3,0,0" Text="{Binding CategoryDisplay, StringFormat='Categoría: {0}'}" />
                                                     </StackPanel>
                                                 </Button.ToolTip>
                                                 <Button.Template>
@@ -386,7 +387,7 @@
                                         <Style TargetType="ItemsControl">
                                             <Setter Property="Visibility" Value="Visible" />
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding HasScanResult}" Value="False">
+                                                <DataTrigger Binding="{Binding HasTreemapItems}" Value="False">
                                                     <Setter Property="Visibility" Value="Collapsed" />
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -399,7 +400,7 @@
                                     <Style TargetType="Border">
                                         <Setter Property="Visibility" Value="Collapsed" />
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasScanResult}" Value="False">
+                                            <DataTrigger Binding="{Binding HasTreemapItems}" Value="False">
                                                 <Setter Property="Visibility" Value="Visible" />
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -416,7 +417,7 @@
                                                FontSize="13"
                                                FontWeight="SemiBold" />
                                     <TextBlock Margin="0,6,0,0"
-                                               Text="Selecciona una ubicación y analiza para generar el mapa."
+                                               Text="{Binding EmptyMapMessage}"
                                                Foreground="{StaticResource MutedTextBrush}"
                                                FontSize="11"
                                                TextWrapping="Wrap" />
@@ -487,101 +488,395 @@
         <DataTemplate DataType="{x:Type vm:HistoryViewModel}">
             <StackPanel>
                 <ContentControl Content="{Binding}" ContentTemplate="{StaticResource PageHeadingTemplate}" />
-                <Grid Margin="0,24,0,14">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="Evolución del almacenamiento" Style="{StaticResource SectionTitleTextStyle}" />
-                    <Button Grid.Column="1"
-                            Content="Comparar snapshots"
-                            IsEnabled="False"
-                            Style="{StaticResource QuietButtonStyle}" />
-                </Grid>
-                <Border MinHeight="300"
-                        Background="#0D121B"
-                        BorderBrush="{StaticResource BorderBrush}"
-                        BorderThickness="1"
-                        CornerRadius="12">
+                <Border Margin="0,22,0,0" Style="{StaticResource CardBorderStyle}">
                     <Grid>
-                        <Canvas Margin="34,30,30,36" IsHitTestVisible="False">
-                            <Line X1="0" Y1="0" X2="0" Y2="210" Stroke="#263144" StrokeThickness="1" />
-                            <Line X1="0" Y1="210" X2="600" Y2="210" Stroke="#263144" StrokeThickness="1" />
-                            <Line X1="0" Y1="52" X2="600" Y2="52" Stroke="#202938" StrokeThickness="1" StrokeDashArray="3,4" />
-                            <Line X1="0" Y1="105" X2="600" Y2="105" Stroke="#202938" StrokeThickness="1" StrokeDashArray="3,4" />
-                            <Line X1="0" Y1="158" X2="600" Y2="158" Stroke="#202938" StrokeThickness="1" StrokeDashArray="3,4" />
-                        </Canvas>
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock Text="Aún no hay historial"
-                                       HorizontalAlignment="Center"
-                                       FontSize="15"
-                                       FontWeight="SemiBold" />
-                            <TextBlock Margin="0,8,0,0"
-                                       Text="Las tendencias se mostrarán al guardar más de un snapshot."
-                                       Style="{StaticResource BodyTextStyle}"
-                                       TextAlignment="Center"
-                                       TextWrapping="Wrap" />
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.2*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Margin="0,0,8,0">
+                            <TextBlock Text="Ubicación" Style="{StaticResource CaptionTextStyle}" />
+                            <ComboBox Margin="0,6,0,0"
+                                      Height="36"
+                                      Padding="8,5"
+                                      ItemsSource="{Binding Roots}"
+                                      SelectedItem="{Binding SelectedRoot}"
+                                      DisplayMemberPath="DisplayName" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="8,0">
+                            <TextBlock Text="Análisis anterior" Style="{StaticResource CaptionTextStyle}" />
+                            <ComboBox Margin="0,6,0,0"
+                                      Height="36"
+                                      Padding="8,5"
+                                      ItemsSource="{Binding Snapshots}"
+                                      SelectedItem="{Binding SelectedPreviousSnapshot}"
+                                      DisplayMemberPath="Label" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Margin="8,0">
+                            <TextBlock Text="Análisis actual" Style="{StaticResource CaptionTextStyle}" />
+                            <ComboBox Margin="0,6,0,0"
+                                      Height="36"
+                                      Padding="8,5"
+                                      ItemsSource="{Binding Snapshots}"
+                                      SelectedItem="{Binding SelectedCurrentSnapshot}"
+                                      DisplayMemberPath="Label" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="3" Margin="8,17,0,0" Orientation="Horizontal">
+                            <Button Content="Comparar"
+                                    Command="{Binding CompareCommand}"
+                                    Style="{StaticResource QuietButtonStyle}" />
+                            <Button Margin="7,0,0,0"
+                                    Content="Actualizar"
+                                    Command="{Binding RefreshCommand}"
+                                    Style="{StaticResource QuietButtonStyle}" />
                         </StackPanel>
                     </Grid>
                 </Border>
-                <Border Margin="0,14,0,0" Style="{StaticResource CardBorderStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Carpetas con mayor crecimiento" Style="{StaticResource SectionTitleTextStyle}" />
-                        <TextBlock Margin="0,6,0,0"
-                                   Text="Para calcular cambios se necesitan snapshots comparables."
-                                   Style="{StaticResource CaptionTextStyle}"
-                                   TextWrapping="Wrap" />
-                        <TextBlock Margin="0,18,0,2"
-                                   Text="Todavía no hay datos para comparar."
-                                   Style="{StaticResource BodyTextStyle}" />
-                    </StackPanel>
-                </Border>
+
+                <TextBlock Margin="2,9,0,0"
+                           Text="{Binding StatusMessage}"
+                           Style="{StaticResource CaptionTextStyle}" />
+                <TextBlock Margin="2,5,0,0"
+                           Text="{Binding ErrorMessage}"
+                           Foreground="#FF929E"
+                           FontSize="11"
+                           TextWrapping="Wrap" />
+
+                <UniformGrid Margin="0,14,0,0" Columns="4">
+                    <Border Margin="0,0,5,0" Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Cambio neto" Style="{StaticResource CaptionTextStyle}" />
+                            <TextBlock Margin="0,6,0,0" Text="{Binding NetGrowthDisplay}" FontSize="20" FontWeight="SemiBold" />
+                            <TextBlock Margin="0,3,0,0" Text="{Binding ComparisonLabel}" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="3,0" Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Archivos nuevos" Style="{StaticResource CaptionTextStyle}" />
+                            <TextBlock Margin="0,6,0,0" Text="{Binding AddedCountDisplay}" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="3,0" Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Archivos eliminados" Style="{StaticResource CaptionTextStyle}" />
+                            <TextBlock Margin="0,6,0,0" Text="{Binding RemovedCountDisplay}" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource VioletBrush}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="5,0,0,0" Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Tamaño cambiado" Style="{StaticResource CaptionTextStyle}" />
+                            <TextBlock Margin="0,6,0,0" Text="{Binding ResizedCountDisplay}" FontSize="20" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+
+                <Grid Margin="0,14,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.4*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Margin="0,0,7,0" Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Evolución del almacenamiento" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Margin="0,5,0,0"
+                                       Text="El uso total registrado en los análisis de esta ubicación."
+                                       Style="{StaticResource CaptionTextStyle}" />
+                            <Border Height="246"
+                                    Margin="0,14,0,0"
+                                    Background="#0D121B"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="9">
+                                <Grid>
+                                    <Canvas Width="720" Height="210" Margin="28,17,20,17" HorizontalAlignment="Left">
+                                        <Line X1="0" Y1="0" X2="0" Y2="210" Stroke="#263144" StrokeThickness="1" />
+                                        <Line X1="0" Y1="210" X2="720" Y2="210" Stroke="#263144" StrokeThickness="1" />
+                                        <Line X1="0" Y1="52" X2="720" Y2="52" Stroke="#202938" StrokeThickness="1" StrokeDashArray="3,4" />
+                                        <Line X1="0" Y1="105" X2="720" Y2="105" Stroke="#202938" StrokeThickness="1" StrokeDashArray="3,4" />
+                                        <Line X1="0" Y1="158" X2="720" Y2="158" Stroke="#202938" StrokeThickness="1" StrokeDashArray="3,4" />
+                                        <Polyline Points="{Binding TrendLinePoints}"
+                                                  Stroke="{StaticResource AccentBrush}"
+                                                  StrokeThickness="2.5"
+                                                  StrokeLineJoin="Round" />
+                                    </Canvas>
+                                    <TextBlock Text="{Binding TrendEmptyMessage}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Foreground="{StaticResource MutedTextBrush}"
+                                               FontSize="12">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasTrend}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Margin="7,0,0,0" Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Carpetas con mayor crecimiento" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Margin="0,5,0,12"
+                                       Text="Carpetas con mayor aumento neto entre los snapshots."
+                                       Style="{StaticResource CaptionTextStyle}"
+                                       TextWrapping="Wrap" />
+                            <ItemsControl ItemsSource="{Binding TopGrowingFolders}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:FolderGrowthDisplayItem}">
+                                        <Border Margin="0,0,0,7"
+                                                Padding="12"
+                                                Background="#111824"
+                                                BorderBrush="{StaticResource BorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding FolderName}" FontSize="11" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Margin="0,4,0,0" Text="{Binding Insight}" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="1"
+                                                           Margin="10,0,0,0"
+                                                           VerticalAlignment="Center"
+                                                           Text="{Binding GrowthDisplay}"
+                                                           Foreground="{StaticResource AccentBrush}"
+                                                           FontSize="12"
+                                                           FontWeight="SemiBold" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="No hay carpetas con crecimiento neto en esta comparación."
+                                       TextWrapping="Wrap">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasComparison}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <DockPanel Margin="2,22,2,10">
+                    <TextBlock Text="Cambios en archivos" Style="{StaticResource SectionTitleTextStyle}" />
+                    <TextBlock DockPanel.Dock="Right"
+                               Text="Hasta 500 cambios principales. Las rutas distintas se muestran como alta y baja, no como renombre."
+                               Style="{StaticResource CaptionTextStyle}" />
+                </DockPanel>
+                <DataGrid ItemsSource="{Binding FileChanges}"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          IsReadOnly="True"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          RowHeaderWidth="0"
+                          MaxHeight="270"
+                          Background="{StaticResource SurfaceBrush}"
+                          Foreground="{StaticResource PrimaryTextBrush}"
+                          BorderBrush="{StaticResource BorderBrush}"
+                          RowBackground="#151C29"
+                          AlternatingRowBackground="#181F2D">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Ruta relativa" Binding="{Binding RelativePath}" Width="3*" />
+                        <DataGridTextColumn Header="Cambio" Binding="{Binding ChangeType}" Width="*" />
+                        <DataGridTextColumn Header="Tamaño anterior" Binding="{Binding PreviousSize}" Width="*" />
+                        <DataGridTextColumn Header="Tamaño actual" Binding="{Binding CurrentSize}" Width="*" />
+                        <DataGridTextColumn Header="Diferencia" Binding="{Binding Delta}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type vm:DevInsightsViewModel}">
             <StackPanel>
                 <ContentControl Content="{Binding}" ContentTemplate="{StaticResource PageHeadingTemplate}" />
-                <UniformGrid Margin="0,24,0,14" Columns="2">
-                    <Border Margin="0,0,7,7" Style="{StaticResource CardBorderStyle}">
+                <Border Margin="0,22,0,0" Style="{StaticResource CardBorderStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Latest Atlas scan" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Margin="0,5,0,0"
+                                       Text="{Binding ScanRootDisplay}"
+                                       Style="{StaticResource CaptionTextStyle}"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip="{Binding ScanRootPath}" />
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Margin="12,0"
+                                Content="Analyze project data"
+                                Command="{Binding AnalyzeCommand}"
+                                IsEnabled="{Binding CanAnalyze}"
+                                Style="{StaticResource QuietButtonStyle}" />
+                        <Button Grid.Column="2"
+                                Content="Cancel"
+                                Command="{Binding CancelAnalysisCommand}"
+                                IsEnabled="{Binding CanCancel}"
+                                Style="{StaticResource QuietButtonStyle}" />
+                    </Grid>
+                </Border>
+                <TextBlock Margin="2,9,0,0"
+                           Text="{Binding StatusMessage}"
+                           Style="{StaticResource CaptionTextStyle}" />
+                <TextBlock Margin="2,4,0,0"
+                           Text="{Binding ErrorMessage}"
+                           Foreground="#FF929E"
+                           FontSize="11"
+                           TextWrapping="Wrap" />
+                <ProgressBar Height="3"
+                             Margin="0,9,0,0"
+                             IsIndeterminate="{Binding IsAnalyzing}"
+                             Background="#222A38"
+                             Foreground="{StaticResource AccentBrush}"
+                             BorderThickness="0" />
+
+                <UniformGrid Margin="0,14,0,0" Columns="6">
+                    <Border Margin="0,0,5,0" Style="{StaticResource CardBorderStyle}">
                         <StackPanel>
-                            <TextBlock Text="Proyectos" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Margin="0,7,0,0" Text="Sin detecciones todavía" Style="{StaticResource CaptionTextStyle}" />
+                            <TextBlock Text="Projects" Style="{StaticResource CaptionTextStyle}" />
+                            <TextBlock Margin="0,6,0,0" Text="{Binding Projects.Count, StringFormat={}{0:N0}}" FontSize="18" FontWeight="SemiBold" />
                         </StackPanel>
                     </Border>
-                    <Border Margin="7,0,0,7" Style="{StaticResource CardBorderStyle}">
+                    <Border Margin="3,0" Style="{StaticResource CardBorderStyle}">
                         <StackPanel>
-                            <TextBlock Text="Dependencias" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Margin="0,7,0,0" Text="Sin detecciones todavía" Style="{StaticResource CaptionTextStyle}" />
+                            <TextBlock Text=".NET" Style="{StaticResource CaptionTextStyle}" />
+                            <TextBlock Margin="0,6,0,0" Text="{Binding DotNetArtifactCount}" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" />
                         </StackPanel>
                     </Border>
-                    <Border Margin="0,7,7,0" Style="{StaticResource CardBorderStyle}">
+                    <Border Margin="3,0" Style="{StaticResource CardBorderStyle}">
                         <StackPanel>
-                            <TextBlock Text="Cachés" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Margin="0,7,0,0" Text="Sin detecciones todavía" Style="{StaticResource CaptionTextStyle}" />
+                            <TextBlock Text="Node.js" Style="{StaticResource CaptionTextStyle}" />
+                            <TextBlock Margin="0,6,0,0" Text="{Binding NodeArtifactCount}" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource VioletBrush}" />
                         </StackPanel>
                     </Border>
-                    <Border Margin="7,7,0,0" Style="{StaticResource CardBorderStyle}">
+                    <Border Margin="3,0" Style="{StaticResource CardBorderStyle}">
                         <StackPanel>
-                            <TextBlock Text="Archivos generados" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Margin="0,7,0,0" Text="Sin detecciones todavía" Style="{StaticResource CaptionTextStyle}" />
+                            <TextBlock Text="Python" Style="{StaticResource CaptionTextStyle}" />
+                            <TextBlock Margin="0,6,0,0" Text="{Binding PythonArtifactCount}" FontSize="18" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="3,0" Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Git" Style="{StaticResource CaptionTextStyle}" />
+                            <TextBlock Margin="0,6,0,0" Text="{Binding GitArtifactCount}" FontSize="18" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="5,0,0,0" Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Potencial recuperable" Style="{StaticResource CaptionTextStyle}" />
+                            <TextBlock Margin="0,6,0,0" Text="{Binding PotentiallyRecoverableDisplay}" FontSize="18" FontWeight="SemiBold" />
                         </StackPanel>
                     </Border>
                 </UniformGrid>
-                <Border Padding="22"
-                        Background="#111824"
-                        BorderBrush="{StaticResource BorderBrush}"
+
+                <Border Margin="0,14,0,0"
+                        Padding="14"
+                        Background="#171A28"
+                        BorderBrush="#34314C"
                         BorderThickness="1"
-                        CornerRadius="12">
-                    <StackPanel>
-                        <TextBlock Text="Espacio potencialmente recuperable"
-                                   Style="{StaticResource SectionTitleTextStyle}" />
-                        <TextBlock Margin="0,7,0,0"
-                                   Text="No se estima espacio hasta identificar datos reales y explicar cada regla."
-                                   Style="{StaticResource BodyTextStyle}"
-                                   TextWrapping="Wrap" />
-                    </StackPanel>
+                        CornerRadius="9">
+                    <TextBlock Text="El espacio marcado como potencialmente recuperable es una estimación basada en reglas, no una garantía de que sea seguro eliminarlo. Orbitera no elimina archivos."
+                               Foreground="{StaticResource VioletBrush}"
+                               FontSize="11"
+                               TextWrapping="Wrap" />
                 </Border>
+
+                <DockPanel Margin="2,22,2,10">
+                    <TextBlock Text="Detected projects" Style="{StaticResource SectionTitleTextStyle}" />
+                    <TextBlock DockPanel.Dock="Right"
+                               Text="{Binding ScanRootDisplay, StringFormat='Scan root: {0}'}"
+                               Style="{StaticResource CaptionTextStyle}"
+                               TextTrimming="CharacterEllipsis" />
+                </DockPanel>
+                <DataGrid ItemsSource="{Binding Projects}"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          IsReadOnly="True"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          RowHeaderWidth="0"
+                          MaxHeight="220"
+                          Background="{StaticResource SurfaceBrush}"
+                          Foreground="{StaticResource PrimaryTextBrush}"
+                          BorderBrush="{StaticResource BorderBrush}"
+                          RowBackground="#151C29"
+                          AlternatingRowBackground="#181F2D">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Project" Binding="{Binding Name}" Width="*" />
+                        <DataGridTextColumn Header="Path" Binding="{Binding Path}" Width="2*" />
+                        <DataGridTextColumn Header="Ecosystem" Binding="{Binding Ecosystems}" Width="*" />
+                        <DataGridTextColumn Header="Detected from" Binding="{Binding Indicators}" Width="2*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <DockPanel Margin="2,22,2,10">
+                    <TextBlock Text="Classified development folders" Style="{StaticResource SectionTitleTextStyle}" />
+                    <TextBlock DockPanel.Dock="Right"
+                               Text="{Binding Recommendations.Count, StringFormat={}{0:N0} candidates}"
+                               Style="{StaticResource CaptionTextStyle}" />
+                </DockPanel>
+                <TextBlock Margin="2,0,2,10"
+                           Text="{Binding EmptyStateMessage}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasRecommendations}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <DataGrid ItemsSource="{Binding Recommendations}"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          IsReadOnly="True"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          RowHeaderWidth="0"
+                          MaxHeight="360"
+                          Background="{StaticResource SurfaceBrush}"
+                          Foreground="{StaticResource PrimaryTextBrush}"
+                          BorderBrush="{StaticResource BorderBrush}"
+                          RowBackground="#151C29"
+                          AlternatingRowBackground="#181F2D">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Folder" Binding="{Binding DirectoryName}" Width="*" />
+                        <DataGridTextColumn Header="Project" Binding="{Binding ProjectName}" Width="*" />
+                        <DataGridTextColumn Header="Ecosystem" Binding="{Binding Ecosystem}" Width="*" />
+                        <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="*" />
+                        <DataGridTextColumn Header="Size" Binding="{Binding SizeDisplay}" Width="*" />
+                        <DataGridTextColumn Header="Risk" Binding="{Binding Risk}" Width="*" />
+                        <DataGridTextColumn Header="Potential" Binding="{Binding Recoverable}" Width="*" />
+                        <DataGridTextColumn Header="Purpose" Binding="{Binding Purpose}" Width="2*" />
+                        <DataGridTextColumn Header="Impact if removed" Binding="{Binding DeletionImpact}" Width="3*" />
+                    </DataGrid.Columns>
+                </DataGrid>
             </StackPanel>
         </DataTemplate>
 

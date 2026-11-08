@@ -3,11 +3,12 @@ using System.Windows;
 using Orbitera.App.Services;
 using Orbitera.App.ViewModels;
 using Orbitera.Application;
+using Orbitera.Domain;
 using Orbitera.Infrastructure;
 
 namespace Orbitera.App;
 
-public partial class App : Application
+public partial class App : System.Windows.Application
 {
     private ServiceProvider? _serviceProvider;
 
@@ -34,6 +35,16 @@ public partial class App : Application
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<IStorageScanner, FileSystemStorageScanner>();
         services.AddSingleton<ScanStorageUseCase>();
+        services.AddSingleton<StorageAnalysisSession>();
+        services.AddSingleton(new DevelopmentInsightsRules());
+        services.AddSingleton<DevelopmentProjectDetector>();
+        services.AddSingleton<DevelopmentArtifactClassifier>();
+        services.AddSingleton<DevelopmentInsightRecommendationFactory>();
+        services.AddSingleton<DevelopmentInsightsAnalyzer>();
+        services.AddSingleton<AnalyzeDevelopmentInsightsUseCase>();
+        services.AddSingleton<ISnapshotRepository, SqliteSnapshotRepository>();
+        services.AddSingleton<CreateStorageSnapshotUseCase>();
+        services.AddSingleton<CompareStorageSnapshotsUseCase>();
         services.AddSingleton<IFolderPickerService, FolderPickerService>();
         services.AddTransient<OverviewViewModel>();
         services.AddTransient<AtlasViewModel>();
