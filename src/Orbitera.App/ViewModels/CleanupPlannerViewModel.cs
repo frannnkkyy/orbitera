@@ -4,19 +4,26 @@ using Orbitera.Application;
 using Orbitera.Domain;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Security;
 
 namespace Orbitera.App.ViewModels;
 
 public sealed partial class CleanupPlannerViewModel : PageViewModel
 {
     private readonly AnalyzeDevelopmentInsightsUseCase _analyzeInsights;
+    private readonly StorageAnalysisSession _session;
+    private readonly IStorageCapacityProvider _capacityProvider;
     private CancellationTokenSource? _refreshCancellation;
+    private StorageCapacity? _capacity;
 
     [ObservableProperty]
     private ObservableCollection<CleanupCandidateDisplayItem> _candidates = [];
 
     [ObservableProperty]
     private CleanupPlan? _plan;
+
+    [ObservableProperty]
+    private CleanupPlanSimulation? _simulation;
 
     [ObservableProperty]
     private bool _isLoading;
@@ -30,7 +37,13 @@ public sealed partial class CleanupPlannerViewModel : PageViewModel
     [ObservableProperty]
     private string _estimatedSelectedBytesDisplay = "0 B";
 
-    public CleanupPlannerViewModel(AnalyzeDevelopmentInsightsUseCase analyzeInsights)
+    [ObservableProperty]
+    private string _currentAvailableSpaceDisplay = "Unavailable";
+
+    public CleanupPlannerViewModel(
+        AnalyzeDevelopmentInsightsUseCase analyzeInsights,
+        StorageAnalysisSession session,
+        IStorageCapacityProvider capacityProvider)
         : base(
             "CLEANUP PLANNER",
             "Plan before cleaning",
@@ -38,6 +51,8 @@ public sealed partial class CleanupPlannerViewModel : PageViewModel
             "Run an Atlas scan first. This planner is read-only and never deletes or changes files.")
     {
         _analyzeInsights = analyzeInsights;
+        _session = session;
+        _capacityProvider = capacityProvider;
     }
 
     public bool CanRefresh => !IsLoading;
@@ -55,6 +70,20 @@ public sealed partial class CleanupPlannerViewModel : PageViewModel
     public string PlanEstimatedBytesDisplay =>
         Plan is null ? "—" : FormatSize(Plan.EstimatedRecoverableBytes);
 
+    public string SimulationSummary
+    {
+        get
+        {
+            if (Simulation?.ProjectedAvailableBytes is long projected &&
+                Simulation.AvailableBeforeBytes is long availableBefore)
+            {
+                return $"Available space would change from {FormatSize(availableBefore)} to {FormatSize(projected)}. This is a read-only estimate.";
+            }
+
+            return "Estimated recovery is based on scanned candidate sizes. Projected free space is unavailable because volume capacity could not be read.";
+        }
+    }
+
     public string EmptyStateMessage => HasCandidates
         ? string.Empty
         : "No rule-based development candidates are available. Run Atlas and ensure the scan includes the project folders.";
@@ -70,7 +99,10 @@ public sealed partial class CleanupPlannerViewModel : PageViewModel
         ErrorMessage = string.Empty;
         StatusMessage = "Loading explainable candidates from the latest Atlas scan…";
         Plan = null;
+        Simulation = null;
         Candidates.Clear();
+        _capacity = null;
+        CurrentAvailableSpaceDisplay = "Unavailable";
 
         try
         {
@@ -83,6 +115,15 @@ public sealed partial class CleanupPlannerViewModel : PageViewModel
                 StatusMessage = "Run an Atlas scan before creating a cleanup plan.";
                 UpdateState();
                 return;
+            }
+
+            var scanRoot = _session.LatestRoot;
+            if (scanRoot is not null)
+            {
+                _capacity = await _capacityProvider.GetCapacityAsync(scanRoot.FullPath, cancellation.Token);
+                CurrentAvailableSpaceDisplay = _capacity is null
+                    ? "Unavailable"
+                    : FormatSize(_capacity.AvailableBytes);
             }
 
             foreach (var recommendation in result.Recommendations)
@@ -102,7 +143,7 @@ public sealed partial class CleanupPlannerViewModel : PageViewModel
             StatusMessage = "Candidate loading cancelled.";
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or
-                                           ArgumentException or OverflowException)
+                                           SecurityException or ArgumentException or OverflowException)
         {
             ErrorMessage = $"Could not load cleanup candidates: {exception.Message}";
             StatusMessage = "Candidate loading could not be completed.";
@@ -125,16 +166,21 @@ public sealed partial class CleanupPlannerViewModel : PageViewModel
 
         try
         {
-            Plan = CleanupPlanFactory.Create(
+            var plan = CleanupPlanFactory.Create(
                 Candidates
                     .Where(candidate => candidate.IsSelected)
                     .Select(candidate => candidate.Recommendation),
                 Candidates
                     .Where(candidate => candidate.IsSelected)
                     .Select(candidate => candidate.Path));
-            EstimatedSelectedBytesDisplay = FormatSize(Plan.EstimatedRecoverableBytes);
-            StatusMessage = $"Simulation ready: {Plan.Items.Count:N0} selected item(s), {EstimatedSelectedBytesDisplay} estimated. No files were changed.";
-            OnPropertyChanged(nameof(HasPlan));
+            Plan = plan;
+            Simulation = CleanupPlanSimulator.Simulate(
+                plan,
+                _capacity?.TotalBytes,
+                _capacity?.AvailableBytes);
+            EstimatedSelectedBytesDisplay = FormatSize(plan.EstimatedRecoverableBytes);
+            StatusMessage = $"Simulation ready: {plan.Items.Count:N0} selected item(s), {EstimatedSelectedBytesDisplay} estimated. No files were changed.";
+            UpdateState();
         }
         catch (Exception exception) when (exception is ArgumentException or OverflowException)
         {
@@ -147,6 +193,7 @@ public sealed partial class CleanupPlannerViewModel : PageViewModel
         if (e.PropertyName == nameof(CleanupCandidateDisplayItem.IsSelected))
         {
             Plan = null;
+            Simulation = null;
             EstimatedSelectedBytesDisplay = FormatSize(
                 Candidates
                     .Where(candidate => candidate.IsSelected)
@@ -162,6 +209,7 @@ public sealed partial class CleanupPlannerViewModel : PageViewModel
         OnPropertyChanged(nameof(HasNoCandidates));
         OnPropertyChanged(nameof(HasPlan));
         OnPropertyChanged(nameof(PlanEstimatedBytesDisplay));
+        OnPropertyChanged(nameof(SimulationSummary));
         OnPropertyChanged(nameof(EmptyStateMessage));
         CreatePlanCommand.NotifyCanExecuteChanged();
     }
@@ -170,6 +218,12 @@ public sealed partial class CleanupPlannerViewModel : PageViewModel
     {
         OnPropertyChanged(nameof(HasPlan));
         OnPropertyChanged(nameof(PlanEstimatedBytesDisplay));
+        OnPropertyChanged(nameof(SimulationSummary));
+    }
+
+    partial void OnSimulationChanged(CleanupPlanSimulation? value)
+    {
+        OnPropertyChanged(nameof(SimulationSummary));
     }
 
     partial void OnIsLoadingChanged(bool value)

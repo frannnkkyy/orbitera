@@ -31,19 +31,19 @@ public sealed class CalculateOrbitScoreUseCase(
             var previous = snapshots[1];
             var elapsedDays = (current.CapturedUtc - previous.CapturedUtc).TotalDays;
 
-            if (current.IsComplete &&
-                previous.IsComplete &&
-                elapsedDays > 0 &&
-                capacity is { TotalBytes: > 0 })
+            if (current.IsComplete && previous.IsComplete)
             {
-                var netGrowth = current.TotalSizeBytes - previous.TotalSizeBytes;
-                monthlyGrowthPercent = netGrowth / (double)capacity.TotalBytes * 100 * 30 / elapsedDays;
-
                 var comparison = await snapshotRepository.CompareAsync(
                     previous.Id,
                     current.Id,
                     cancellationToken);
                 changedBytes = CalculateChangedBytes(comparison);
+
+                if (elapsedDays > 0 && capacity is { TotalBytes: > 0 })
+                {
+                    var netGrowth = current.TotalSizeBytes - previous.TotalSizeBytes;
+                    monthlyGrowthPercent = netGrowth / (double)capacity.TotalBytes * 100 * 30 / elapsedDays;
+                }
             }
         }
 
@@ -57,8 +57,8 @@ public sealed class CalculateOrbitScoreUseCase(
             capacity?.AvailableBytes,
             monthlyGrowthPercent,
             DuplicateBytes: null,
-            insights?.PotentiallyRecoverableBytes,
-            changedBytes));
+            RegenerableBytes: insights?.PotentiallyRecoverableBytes,
+            ChangedBytes: changedBytes));
     }
 
     private static long CalculateChangedBytes(SnapshotComparison comparison)

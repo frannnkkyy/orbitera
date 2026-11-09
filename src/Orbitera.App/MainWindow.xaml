@@ -147,8 +147,15 @@
                     <Border Margin="8,0,0,0" Style="{StaticResource CardBorderStyle}">
                         <StackPanel>
                             <TextBlock Text="Último análisis" Style="{StaticResource CaptionTextStyle}" />
-                            <TextBlock Margin="0,11,0,0" Text="—" FontSize="24" FontWeight="SemiBold" />
-                            <TextBlock Margin="0,3,0,0" Text="Todavía no se ha realizado ninguno" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                            <TextBlock Margin="0,11,0,0"
+                                       Text="{Binding LastScanDisplay}"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Margin="0,3,0,0"
+                                       Text="Fecha del último análisis de Atlas"
+                                       Style="{StaticResource CaptionTextStyle}"
+                                       TextWrapping="Wrap" />
                         </StackPanel>
                     </Border>
                 </UniformGrid>
@@ -1040,6 +1047,27 @@
                                    TextWrapping="Wrap" />
                     </StackPanel>
                 </Border>
+                <UniformGrid Margin="0,0,0,14" Columns="2">
+                    <Border Margin="0,0,6,0" Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Current free space" Style="{StaticResource CaptionTextStyle}" />
+                            <TextBlock Margin="0,6,0,0"
+                                       Text="{Binding CurrentAvailableSpaceDisplay}"
+                                       FontSize="18"
+                                       FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="6,0,0,0" Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Selected potential recovery" Style="{StaticResource CaptionTextStyle}" />
+                            <TextBlock Margin="0,6,0,0"
+                                       Text="{Binding EstimatedSelectedBytesDisplay}"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource AccentBrush}" />
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
                 <Grid Margin="0,0,0,10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -1047,7 +1075,7 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Rule-based candidates" Style="{StaticResource SectionTitleTextStyle}" />
                     <TextBlock Grid.Column="1"
-                               Text="{Binding EstimatedSelectedBytesDisplay, StringFormat='Selected potential: {0}'}"
+                               Text="{Binding Candidates.Count, StringFormat={}{0:N0} candidates}"
                                Style="{StaticResource CaptionTextStyle}" />
                 </Grid>
                 <DataGrid ItemsSource="{Binding Candidates}"
@@ -1105,6 +1133,10 @@
                         <TextBlock Margin="0,6,0,10"
                                    Text="{Binding Plan.Items.Count, StringFormat='Selected items: {0}. This plan is a simulation only; nothing has been changed.'}"
                                    Style="{StaticResource CaptionTextStyle}"
+                                   TextWrapping="Wrap" />
+                        <TextBlock Margin="0,0,0,10"
+                                   Text="{Binding SimulationSummary}"
+                                   Style="{StaticResource BodyTextStyle}"
                                    TextWrapping="Wrap" />
                         <ItemsControl ItemsSource="{Binding Plan.Items}">
                             <ItemsControl.ItemTemplate>

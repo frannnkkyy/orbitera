@@ -67,4 +67,17 @@ public sealed class OrbitScoreCalculatorTests
                 RegenerableBytes: null,
                 ChangedBytes: null)));
     }
+
+    [Fact]
+    public void RejectsNonFiniteGrowthPercentage()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            OrbitScoreCalculator.Calculate(new OrbitScoreInput(
+                TotalCapacityBytes: 1_000,
+                AvailableBytes: 500,
+                MonthlyGrowthPercent: double.NaN,
+                DuplicateBytes: null,
+                RegenerableBytes: null,
+                ChangedBytes: null)));
+    }
 }

@@ -64,7 +64,7 @@ public static class OrbitScoreCalculator
                 "Changes between scans",
                 ChangesWeight,
                 LinearScore(changedPercent, 20, 1),
-                $"{FormatPercent(changedPercent)} of volume capacity changed between the compared snapshots; up to 1% scores 100 and 20% or more scores 0."));
+                $"{FormatPercent(changedPercent)} of volume capacity changed due to file additions, removals, or size changes; up to 1% scores 100 and 20% or more scores 0."));
         }
 
         if (factors.Count == 0)
@@ -101,6 +101,11 @@ public static class OrbitScoreCalculator
              available > capacity))
         {
             throw new ArgumentOutOfRangeException(nameof(input), "Available bytes must be between zero and total capacity.");
+        }
+
+        if (input.MonthlyGrowthPercent is double growthPercent && !double.IsFinite(growthPercent))
+        {
+            throw new ArgumentOutOfRangeException(nameof(input), "Monthly growth must be a finite percentage.");
         }
 
         ValidateNonNegative(input.DuplicateBytes, nameof(input.DuplicateBytes));
