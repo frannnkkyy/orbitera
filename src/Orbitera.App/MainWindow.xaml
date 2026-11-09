@@ -3,19 +3,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:Orbitera.App.ViewModels"
         Title="Orbitera"
-        Width="1380"
-        Height="900"
+        Width="1440"
+        Height="960"
         MinWidth="1050"
         MinHeight="700"
+        SizeChanged="MainWindow_OnSizeChanged"
         Background="{StaticResource AppBackgroundBrush}"
-        FontSize="12"
+        FontSize="13"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <DataTemplate x:Key="PageHeadingTemplate">
             <StackPanel>
                 <TextBlock Text="{Binding SectionLabel}" Style="{StaticResource EyebrowTextStyle}" />
-                <TextBlock Margin="0,9,0,0" Text="{Binding Title}" Style="{StaticResource PageTitleTextStyle}" />
+                <TextBlock Margin="0,8,0,0" Text="{Binding Title}" Style="{StaticResource PageTitleTextStyle}" />
                 <TextBlock MaxWidth="720"
                            Margin="0,8,0,0"
                            Text="{Binding Description}"
@@ -44,16 +47,16 @@
                         <StackPanel MaxWidth="560" VerticalAlignment="Center">
                             <Border HorizontalAlignment="Left"
                                     Padding="9,5"
-                                    Background="#1B2434"
+                                    Background="{StaticResource AccentTintBrush}"
                                     CornerRadius="12">
                                 <TextBlock Text="ESPERANDO TU PRIMER ANÁLISIS"
-                                           Foreground="{StaticResource AccentBrush}"
-                                           FontSize="9"
+                                           Foreground="{StaticResource AccentTextBrush}"
+                                           FontSize="11"
                                            FontWeight="SemiBold" />
                             </Border>
                             <TextBlock Margin="0,18,0,0"
                                        Text="Tu almacenamiento, con otra perspectiva."
-                                       FontSize="21"
+                                       FontSize="25"
                                        FontWeight="SemiBold"
                                        TextWrapping="Wrap" />
                             <TextBlock Margin="0,9,0,0"
@@ -75,18 +78,18 @@
                               HorizontalAlignment="Center"
                               VerticalAlignment="Center">
                             <Ellipse Margin="12"
-                                     Stroke="#334567"
+                                     Stroke="#DCE3FA"
                                      StrokeThickness="1"
                                      Opacity="0.8" />
                             <Ellipse Margin="31"
-                                     Stroke="#33314D"
+                                     Stroke="#E7E1FC"
                                      StrokeThickness="1"
                                      Opacity="0.8" />
                             <Ellipse Width="70" Height="70">
                                 <Ellipse.Fill>
                                     <RadialGradientBrush>
-                                        <GradientStop Color="#465C91" Offset="0" />
-                                        <GradientStop Color="#252D48" Offset="1" />
+                                        <GradientStop Color="#DCE5FF" Offset="0" />
+                                        <GradientStop Color="#EDE7FF" Offset="1" />
                                     </RadialGradientBrush>
                                 </Ellipse.Fill>
                             </Ellipse>
@@ -105,9 +108,9 @@
                 <UniformGrid Margin="0,16,0,0" Columns="3">
                     <Border Margin="0,0,8,0" Style="{StaticResource CardBorderStyle}">
                         <StackPanel>
-                            <TextBlock Text="Almacenamiento" Style="{StaticResource CaptionTextStyle}" />
+                            <TextBlock Text="Used vs. available" Style="{StaticResource CaptionTextStyle}" />
                             <TextBlock Margin="0,11,0,0" Text="—" FontSize="24" FontWeight="SemiBold" />
-                            <TextBlock Margin="0,3,0,0" Text="Se mostrará tras el primer análisis" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                            <TextBlock Margin="0,3,0,0" Text="Run Atlas to measure this location" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                         </StackPanel>
                     </Border>
                     <Border Margin="4,0" Style="{StaticResource CardBorderStyle}">
@@ -178,7 +181,7 @@
                                    TextWrapping="Wrap" />
                         <TextBlock Margin="0,0,0,8"
                                    Text="{Binding ErrorMessage}"
-                                   Foreground="#FF929E"
+                                   Foreground="{StaticResource DangerTextBrush}"
                                    TextWrapping="Wrap" />
                         <ItemsControl ItemsSource="{Binding ScoreFactors}">
                             <ItemsControl.ItemTemplate>
@@ -233,7 +236,7 @@
                                        TextWrapping="Wrap" />
                             <Border Height="90"
                                     Margin="0,17,0,0"
-                                    Background="#111824"
+                                    Background="{StaticResource SubtleSurfaceBrush}"
                                     BorderBrush="{StaticResource BorderBrush}"
                                     BorderThickness="1"
                                     CornerRadius="8">
@@ -252,19 +255,65 @@
                     </Border>
                     <Border Grid.Column="1" Margin="8,0,0,0" Style="{StaticResource CardBorderStyle}">
                         <StackPanel>
-                            <TextBlock Text="Espacio por categoría" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="Carpetas más grandes" Style="{StaticResource SectionTitleTextStyle}" />
                             <TextBlock Margin="0,7,0,0"
-                                       Text="Una vista de lo que ocupa espacio, sin estimaciones."
+                                       Text="Carpetas que más espacio ocupan en la ubicación analizada."
                                        Style="{StaticResource CaptionTextStyle}"
                                        TextWrapping="Wrap" />
                             <StackPanel Height="90" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="Las categorías aparecerán tras el análisis."
+                                <TextBlock Text="Aún no hay resultados de Atlas."
                                            HorizontalAlignment="Center"
                                            Foreground="{StaticResource MutedTextBrush}"
                                            FontSize="12"
                                            TextWrapping="Wrap"
                                            TextAlignment="Center" />
                             </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+                <Grid Margin="0,14,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.15*" />
+                        <ColumnDefinition Width="0.85*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Margin="0,0,8,0" Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Uso por categoría" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Margin="0,7,0,0"
+                                       Text="Distribución medida por tipo de archivo, basada en el último análisis de Atlas."
+                                       Style="{StaticResource CaptionTextStyle}"
+                                       TextWrapping="Wrap" />
+                            <Border Height="90"
+                                    Margin="0,14,0,0"
+                                    Background="{StaticResource SubtleSurfaceBrush}"
+                                    CornerRadius="7">
+                                <TextBlock Text="Las categorías aparecerán tras el análisis."
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource MutedTextBrush}"
+                                           TextAlignment="Center"
+                                           TextWrapping="Wrap" />
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Margin="8,0,0,0" Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Espacio de desarrollo" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Margin="0,7,0,0"
+                                       Text="Consulta el espacio utilizado por proyectos, dependencias, cachés y archivos generados."
+                                       Style="{StaticResource CaptionTextStyle}"
+                                       TextWrapping="Wrap" />
+                            <Border Height="90"
+                                    Margin="0,14,0,0"
+                                    Background="{StaticResource VioletTintBrush}"
+                                    CornerRadius="7">
+                                <TextBlock Text="Los insights aparecerán cuando haya datos de Atlas."
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource PrimaryTextBrush}"
+                                           TextAlignment="Center"
+                                           TextWrapping="Wrap" />
+                            </Border>
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -310,10 +359,10 @@
                                     MinWidth="104"
                                     Content="Analizar"
                                     Command="{Binding ScanCommand}"
-                                    Background="#26385A"
-                                    Foreground="{StaticResource PrimaryTextBrush}"
-                                    BorderBrush="#425B88"
-                                    Style="{StaticResource QuietButtonStyle}" />
+                                    Background="{StaticResource AccentBrush}"
+                                    Foreground="#FFFFFF"
+                                    BorderBrush="{StaticResource AccentBrush}"
+                                    Style="{StaticResource PrimaryButtonStyle}" />
                         </Grid>
 
                         <DockPanel Margin="0,14,0,0">
@@ -337,13 +386,13 @@
                                      IsIndeterminate="{Binding IsScanning}"
                                      Maximum="100"
                                      Value="{Binding ProgressValue}"
-                                     Background="#222A38"
+                                     Background="{StaticResource BorderBrush}"
                                      Foreground="{StaticResource AccentBrush}"
                                      BorderThickness="0" />
 
                         <TextBlock Margin="0,9,0,0"
                                    Text="{Binding ErrorMessage}"
-                                   Foreground="#FF929E"
+                                   Foreground="{StaticResource DangerTextBrush}"
                                    FontSize="11"
                                    TextWrapping="Wrap" />
                         <TextBlock Margin="0,8,0,0"
@@ -409,7 +458,7 @@
                     <Border Grid.Column="0"
                             MinHeight="350"
                             Margin="0,0,7,0"
-                            Background="#0D121B"
+                            Background="{StaticResource SubtleSurfaceBrush}"
                             BorderBrush="{StaticResource BorderBrush}"
                             BorderThickness="1"
                             CornerRadius="12">
@@ -457,19 +506,19 @@
                                                                 BorderThickness="{Binding SelectionBorderThickness}"
                                                                 CornerRadius="4">
                                                             <Grid ClipToBounds="True">
-                                                                <Border Background="#1AFFFFFF" />
                                                                 <StackPanel Margin="7"
                                                                             HorizontalAlignment="Left"
                                                                             VerticalAlignment="Top"
                                                                             Visibility="{Binding ShowLabel, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="{Binding Name}"
+                                                                               Foreground="#FFFFFF"
                                                                                FontSize="11"
                                                                                FontWeight="SemiBold"
                                                                                TextTrimming="CharacterEllipsis" />
                                                                     <TextBlock Margin="0,3,0,0"
                                                                                Text="{Binding SizeDisplay}"
-                                                                               Foreground="#D9E1F0"
-                                                                               FontSize="9" />
+                                                                               Foreground="#FFFFFF"
+                                                                               FontSize="11" />
                                                                 </StackPanel>
                                                             </Grid>
                                                         </Border>
@@ -490,7 +539,7 @@
                                     </ItemsControl.Style>
                                 </ItemsControl>
                             </Viewbox>
-                            <Border Background="#0D121B">
+                            <Border Background="{StaticResource SubtleSurfaceBrush}">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="Visibility" Value="Collapsed" />
@@ -566,8 +615,8 @@
                           Background="{StaticResource SurfaceBrush}"
                           Foreground="{StaticResource PrimaryTextBrush}"
                           BorderBrush="{StaticResource BorderBrush}"
-                          RowBackground="#151C29"
-                          AlternatingRowBackground="#181F2D">
+                          RowBackground="{StaticResource SurfaceBrush}"
+                          AlternatingRowBackground="{StaticResource SubtleSurfaceBrush}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Nombre" Binding="{Binding Name}" Width="2*" />
                         <DataGridTextColumn Header="Tipo" Binding="{Binding Type}" Width="*" />
@@ -635,7 +684,7 @@
                            Style="{StaticResource CaptionTextStyle}" />
                 <TextBlock Margin="2,5,0,0"
                            Text="{Binding ErrorMessage}"
-                           Foreground="#FF929E"
+                           Foreground="{StaticResource DangerTextBrush}"
                            FontSize="11"
                            TextWrapping="Wrap" />
 
@@ -656,7 +705,7 @@
                     <Border Margin="3,0" Style="{StaticResource CardBorderStyle}">
                         <StackPanel>
                             <TextBlock Text="Archivos eliminados" Style="{StaticResource CaptionTextStyle}" />
-                            <TextBlock Margin="0,6,0,0" Text="{Binding RemovedCountDisplay}" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource VioletBrush}" />
+                            <TextBlock Margin="0,6,0,0" Text="{Binding RemovedCountDisplay}" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource VioletTextBrush}" />
                         </StackPanel>
                     </Border>
                     <Border Margin="5,0,0,0" Style="{StaticResource CardBorderStyle}">
@@ -680,22 +729,24 @@
                                        Style="{StaticResource CaptionTextStyle}" />
                             <Border Height="246"
                                     Margin="0,14,0,0"
-                                    Background="#0D121B"
+                                    Background="{StaticResource SubtleSurfaceBrush}"
                                     BorderBrush="{StaticResource BorderBrush}"
                                     BorderThickness="1"
                                     CornerRadius="9">
                                 <Grid>
-                                    <Canvas Width="720" Height="210" Margin="28,17,20,17" HorizontalAlignment="Left">
-                                        <Line X1="0" Y1="0" X2="0" Y2="210" Stroke="#263144" StrokeThickness="1" />
-                                        <Line X1="0" Y1="210" X2="720" Y2="210" Stroke="#263144" StrokeThickness="1" />
-                                        <Line X1="0" Y1="52" X2="720" Y2="52" Stroke="#202938" StrokeThickness="1" StrokeDashArray="3,4" />
-                                        <Line X1="0" Y1="105" X2="720" Y2="105" Stroke="#202938" StrokeThickness="1" StrokeDashArray="3,4" />
-                                        <Line X1="0" Y1="158" X2="720" Y2="158" Stroke="#202938" StrokeThickness="1" StrokeDashArray="3,4" />
-                                        <Polyline Points="{Binding TrendLinePoints}"
-                                                  Stroke="{StaticResource AccentBrush}"
-                                                  StrokeThickness="2.5"
-                                                  StrokeLineJoin="Round" />
-                                    </Canvas>
+                                    <Viewbox Margin="16,12" Stretch="Uniform">
+                                        <Canvas Width="720" Height="210">
+                                            <Line X1="0" Y1="0" X2="0" Y2="210" Stroke="{StaticResource ChartGridBrush}" StrokeThickness="1" />
+                                            <Line X1="0" Y1="210" X2="720" Y2="210" Stroke="{StaticResource ChartGridBrush}" StrokeThickness="1" />
+                                            <Line X1="0" Y1="52" X2="720" Y2="52" Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeDashArray="3,4" />
+                                            <Line X1="0" Y1="105" X2="720" Y2="105" Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeDashArray="3,4" />
+                                            <Line X1="0" Y1="158" X2="720" Y2="158" Stroke="{StaticResource BorderBrush}" StrokeThickness="1" StrokeDashArray="3,4" />
+                                            <Polyline Points="{Binding TrendLinePoints}"
+                                                      Stroke="{StaticResource AccentBrush}"
+                                                      StrokeThickness="2.5"
+                                                      StrokeLineJoin="Round" />
+                                        </Canvas>
+                                    </Viewbox>
                                     <TextBlock Text="{Binding TrendEmptyMessage}"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"
@@ -728,7 +779,7 @@
                                     <DataTemplate DataType="{x:Type vm:FolderGrowthDisplayItem}">
                                         <Border Margin="0,0,0,7"
                                                 Padding="12"
-                                                Background="#111824"
+                                                Background="{StaticResource SubtleSurfaceBrush}"
                                                 BorderBrush="{StaticResource BorderBrush}"
                                                 BorderThickness="1"
                                                 CornerRadius="8">
@@ -788,8 +839,8 @@
                           Background="{StaticResource SurfaceBrush}"
                           Foreground="{StaticResource PrimaryTextBrush}"
                           BorderBrush="{StaticResource BorderBrush}"
-                          RowBackground="#151C29"
-                          AlternatingRowBackground="#181F2D">
+                          RowBackground="{StaticResource SurfaceBrush}"
+                          AlternatingRowBackground="{StaticResource SubtleSurfaceBrush}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Ruta relativa" Binding="{Binding RelativePath}" Width="3*" />
                         <DataGridTextColumn Header="Cambio" Binding="{Binding ChangeType}" Width="*" />
@@ -838,13 +889,13 @@
                            Style="{StaticResource CaptionTextStyle}" />
                 <TextBlock Margin="2,4,0,0"
                            Text="{Binding ErrorMessage}"
-                           Foreground="#FF929E"
+                           Foreground="{StaticResource DangerTextBrush}"
                            FontSize="11"
                            TextWrapping="Wrap" />
                 <ProgressBar Height="3"
                              Margin="0,9,0,0"
                              IsIndeterminate="{Binding IsAnalyzing}"
-                             Background="#222A38"
+                             Background="{StaticResource BorderBrush}"
                              Foreground="{StaticResource AccentBrush}"
                              BorderThickness="0" />
 
@@ -864,7 +915,7 @@
                     <Border Margin="3,0" Style="{StaticResource CardBorderStyle}">
                         <StackPanel>
                             <TextBlock Text="Node.js" Style="{StaticResource CaptionTextStyle}" />
-                            <TextBlock Margin="0,6,0,0" Text="{Binding NodeArtifactCount}" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource VioletBrush}" />
+                            <TextBlock Margin="0,6,0,0" Text="{Binding NodeArtifactCount}" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource VioletTextBrush}" />
                         </StackPanel>
                     </Border>
                     <Border Margin="3,0" Style="{StaticResource CardBorderStyle}">
@@ -889,12 +940,12 @@
 
                 <Border Margin="0,14,0,0"
                         Padding="14"
-                        Background="#171A28"
-                        BorderBrush="#34314C"
+                        Background="{StaticResource VioletTintBrush}"
+                        BorderBrush="{StaticResource BorderBrush}"
                         BorderThickness="1"
                         CornerRadius="9">
                     <TextBlock Text="El espacio marcado como potencialmente recuperable es una estimación basada en reglas, no una garantía de que sea seguro eliminarlo. Orbitera no elimina archivos."
-                               Foreground="{StaticResource VioletBrush}"
+                               Foreground="{StaticResource VioletTextBrush}"
                                FontSize="11"
                                TextWrapping="Wrap" />
                 </Border>
@@ -918,8 +969,8 @@
                           Background="{StaticResource SurfaceBrush}"
                           Foreground="{StaticResource PrimaryTextBrush}"
                           BorderBrush="{StaticResource BorderBrush}"
-                          RowBackground="#151C29"
-                          AlternatingRowBackground="#181F2D">
+                          RowBackground="{StaticResource SurfaceBrush}"
+                          AlternatingRowBackground="{StaticResource SubtleSurfaceBrush}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Project" Binding="{Binding Name}" Width="*" />
                         <DataGridTextColumn Header="Path" Binding="{Binding Path}" Width="2*" />
@@ -959,8 +1010,8 @@
                           Background="{StaticResource SurfaceBrush}"
                           Foreground="{StaticResource PrimaryTextBrush}"
                           BorderBrush="{StaticResource BorderBrush}"
-                          RowBackground="#151C29"
-                          AlternatingRowBackground="#181F2D">
+                          RowBackground="{StaticResource SurfaceBrush}"
+                          AlternatingRowBackground="{StaticResource SubtleSurfaceBrush}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Folder" Binding="{Binding DirectoryName}" Width="*" />
                         <DataGridTextColumn Header="Project" Binding="{Binding ProjectName}" Width="*" />
@@ -981,8 +1032,8 @@
                 <ContentControl Content="{Binding}" ContentTemplate="{StaticResource PageHeadingTemplate}" />
                 <Border Margin="0,22,0,14"
                         Padding="14"
-                        Background="#171A28"
-                        BorderBrush="#34314C"
+                        Background="{StaticResource VioletTintBrush}"
+                        BorderBrush="{StaticResource BorderBrush}"
                         BorderThickness="1"
                         CornerRadius="10">
                     <Grid>
@@ -994,7 +1045,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="Read-only simulation"
-                                       Foreground="{StaticResource VioletBrush}"
+                                       Foreground="{StaticResource VioletTextBrush}"
                                        FontSize="12"
                                        FontWeight="SemiBold" />
                             <TextBlock Margin="0,5,0,0"
@@ -1017,10 +1068,10 @@
                                 Content="Create simulation"
                                 Command="{Binding CreatePlanCommand}"
                                 IsEnabled="{Binding CanCreatePlan}"
-                                Background="#26385A"
+                                Background="{StaticResource AccentBrush}"
                                 Foreground="{StaticResource PrimaryTextBrush}"
-                                BorderBrush="#425B88"
-                                Style="{StaticResource QuietButtonStyle}" />
+                                BorderBrush="{StaticResource AccentBrush}"
+                                Style="{StaticResource PrimaryButtonStyle}" />
                     </Grid>
                 </Border>
                 <TextBlock Margin="2,0,0,4"
@@ -1028,7 +1079,7 @@
                            Style="{StaticResource CaptionTextStyle}" />
                 <TextBlock Margin="2,0,0,9"
                            Text="{Binding ErrorMessage}"
-                           Foreground="#FF929E"
+                           Foreground="{StaticResource DangerTextBrush}"
                            TextWrapping="Wrap" />
                 <Border MinHeight="100"
                         Margin="0,0,0,12"
@@ -1090,8 +1141,8 @@
                           Background="{StaticResource SurfaceBrush}"
                           Foreground="{StaticResource PrimaryTextBrush}"
                           BorderBrush="{StaticResource BorderBrush}"
-                          RowBackground="#151C29"
-                          AlternatingRowBackground="#181F2D">
+                          RowBackground="{StaticResource SurfaceBrush}"
+                          AlternatingRowBackground="{StaticResource SubtleSurfaceBrush}">
                     <DataGrid.Columns>
                         <DataGridTemplateColumn Header="Select" Width="54">
                             <DataGridTemplateColumn.CellTemplate>
@@ -1117,8 +1168,8 @@
                 </DataGrid>
                 <Border Margin="0,14,0,0"
                         Padding="16"
-                        Background="#171A28"
-                        BorderBrush="#34314C"
+                        Background="{StaticResource VioletTintBrush}"
+                        BorderBrush="{StaticResource BorderBrush}"
                         BorderThickness="1"
                         CornerRadius="10"
                         Visibility="{Binding HasPlan, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -1127,7 +1178,7 @@
                             <TextBlock Text="Plan preview" Style="{StaticResource SectionTitleTextStyle}" />
                             <TextBlock DockPanel.Dock="Right"
                                        Text="{Binding PlanEstimatedBytesDisplay, StringFormat='Estimated recovery: {0}'}"
-                                       Foreground="{StaticResource AccentBrush}"
+                                       Foreground="{StaticResource AccentTextBrush}"
                                        FontWeight="SemiBold" />
                         </DockPanel>
                         <TextBlock Margin="0,6,0,10"
@@ -1141,7 +1192,7 @@
                         <ItemsControl ItemsSource="{Binding Plan.Items}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Margin="0,3" Padding="8" Background="#111824" CornerRadius="6">
+                                    <Border Margin="0,3" Padding="8" Background="{StaticResource SurfaceBrush}" CornerRadius="6">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
@@ -1157,7 +1208,7 @@
                                             <TextBlock Grid.Column="1"
                                                        Margin="12,0,0,0"
                                                        Text="{Binding RiskLevel}"
-                                                       Foreground="{StaticResource VioletBrush}"
+                                                       Foreground="{StaticResource VioletTextBrush}"
                                                        VerticalAlignment="Center" />
                                         </Grid>
                                     </Border>
@@ -1193,7 +1244,7 @@
                     </Border>
                 </UniformGrid>
                 <Border MinHeight="230"
-                        Background="#0D121B"
+                        Background="{StaticResource SubtleSurfaceBrush}"
                         BorderBrush="{StaticResource BorderBrush}"
                         BorderThickness="1"
                         CornerRadius="12">
@@ -1226,10 +1277,10 @@
                             <TextBlock Text="Apariencia" Style="{StaticResource SectionTitleTextStyle}" />
                             <TextBlock Margin="0,6,0,0" Text="Tema de Orbitera" Style="{StaticResource CaptionTextStyle}" />
                         </StackPanel>
-                        <Border Grid.Column="1" Padding="10,5" Background="#1B2434" CornerRadius="10">
-                            <TextBlock Text="Oscuro · Activo"
-                                       Foreground="{StaticResource AccentBrush}"
-                                       FontSize="10"
+                        <Border Grid.Column="1" Padding="10,5" Background="{StaticResource AccentTintBrush}" CornerRadius="10">
+                            <TextBlock Text="Claro · Activo"
+                                       Foreground="{StaticResource AccentTextBrush}"
+                                       FontSize="11"
                                        FontWeight="SemiBold" />
                         </Border>
                     </Grid>
@@ -1259,34 +1310,36 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="238" />
+            <ColumnDefinition x:Name="SidebarColumn" Width="232" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0" Background="{StaticResource SidebarBrush}">
-            <DockPanel Margin="17,20,17,16" LastChildFill="True">
-                <StackPanel DockPanel.Dock="Top">
+            <Grid Margin="17,20,17,16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0">
                     <StackPanel Orientation="Horizontal" Margin="5,2,0,28">
-                        <Border Width="36" Height="36" CornerRadius="11">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#8BB4FF" Offset="0" />
-                                    <GradientStop Color="#B39AFF" Offset="1" />
-                                </LinearGradientBrush>
-                            </Border.Background>
+                        <Border Width="36" Height="36"
+                                Background="{StaticResource AccentBrush}"
+                                CornerRadius="9">
                             <TextBlock Text="O"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
-                                       Foreground="#0D111A"
+                                       Foreground="#FFFFFF"
                                        FontSize="22"
                                        FontWeight="Bold" />
                         </Border>
                         <StackPanel Margin="11,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="Orbitera" FontSize="16" FontWeight="SemiBold" />
-                            <TextBlock Margin="0,2,0,0"
+                            <TextBlock x:Name="BrandTagline"
+                                       Margin="0,2,0,0"
                                        Text="See your storage differently."
                                        Foreground="{StaticResource MutedTextBrush}"
-                                       FontSize="9" />
+                                       FontSize="11" />
                         </StackPanel>
                     </StackPanel>
 
@@ -1295,7 +1348,7 @@
                                Style="{StaticResource EyebrowTextStyle}" />
                 </StackPanel>
 
-                <ItemsControl ItemsSource="{Binding NavigationItems}">
+                <ItemsControl Grid.Row="1" Margin="0,6,0,0" ItemsSource="{Binding NavigationItems}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type vm:NavigationItemViewModel}">
                             <RadioButton IsChecked="{Binding IsSelected, Mode=TwoWay}"
@@ -1316,17 +1369,17 @@
                                     <TextBlock Text="{Binding Title}"
                                                Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type RadioButton}}}"
                                                VerticalAlignment="Center"
-                                               FontSize="12" />
+                                               FontSize="13" />
                                 </StackPanel>
                             </RadioButton>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <Border DockPanel.Dock="Bottom"
-                        Margin="0,18,0,0"
+                <Border Grid.Row="2"
+                        Margin="0,14,0,0"
                         Padding="13"
-                        Background="#121923"
+                        Background="{StaticResource SubtleSurfaceBrush}"
                         BorderBrush="{StaticResource BorderBrush}"
                         BorderThickness="1"
                         CornerRadius="10">
@@ -1340,24 +1393,24 @@
                         <TextBlock Margin="0,8,0,0"
                                    Text="Sin análisis ni cambios de archivos en esta versión."
                                    Foreground="{StaticResource MutedTextBrush}"
-                                   FontSize="10"
+                                   FontSize="11"
                                    TextWrapping="Wrap" />
                     </StackPanel>
                 </Border>
-            </DockPanel>
+            </Grid>
         </Border>
 
         <Grid Grid.Column="1" Background="{StaticResource AppBackgroundBrush}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="58" />
+                <RowDefinition Height="60" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0"
                     Background="{StaticResource AppBackgroundBrush}"
-                    BorderBrush="#1B2230"
+                    BorderBrush="{StaticResource BorderBrush}"
                     BorderThickness="0,0,0,1">
-                <DockPanel Margin="30,0,32,0">
+                <DockPanel Margin="28,0,30,0">
                     <TextBlock Text="LOCAL STORAGE INTELLIGENCE"
                                VerticalAlignment="Center"
                                Style="{StaticResource EyebrowTextStyle}" />
@@ -1368,17 +1421,23 @@
                         <TextBlock Margin="7,0,0,0"
                                    Text="EN TU EQUIPO"
                                    Foreground="{StaticResource MutedTextBrush}"
-                                   FontSize="9"
+                                   FontSize="11"
                                    FontWeight="SemiBold" />
                     </StackPanel>
                 </DockPanel>
             </Border>
 
-            <ScrollViewer Grid.Row="1"
+            <ScrollViewer x:Name="PageScrollViewer"
+                          Grid.Row="1"
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
-                <ContentControl Margin="32,29,32,36"
-                                Content="{Binding CurrentViewModel}" />
+                <Grid Width="{Binding ActualWidth, ElementName=PageScrollViewer}">
+                    <ContentControl x:Name="PageContentHost"
+                                    MaxWidth="1800"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="30,26,30,34"
+                                    Content="{Binding CurrentViewModel}" />
+                </Grid>
             </ScrollViewer>
         </Grid>
     </Grid>
