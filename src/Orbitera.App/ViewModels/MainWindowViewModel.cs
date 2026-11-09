@@ -46,9 +46,17 @@ public partial class MainWindowViewModel : ObservableObject
         {
             await history.RefreshCommand.ExecuteAsync(null);
         }
+        else if (CurrentViewModel is OverviewViewModel overview)
+        {
+            await overview.RefreshCommand.ExecuteAsync(null);
+        }
         else if (CurrentViewModel is DevInsightsViewModel devInsights)
         {
             await devInsights.AnalyzeCommand.ExecuteAsync(null);
+        }
+        else if (CurrentViewModel is CleanupPlannerViewModel cleanupPlanner)
+        {
+            await cleanupPlanner.RefreshCommand.ExecuteAsync(null);
         }
     }
 

@@ -15,6 +15,11 @@ public sealed class DevelopmentProjectDetector(DevelopmentInsightsRules rules)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            if (IsInsideArtifactDirectory(directory))
+            {
+                continue;
+            }
+
             foreach (var indicator in rules.ProjectIndicators)
             {
                 var match = directory.Children.FirstOrDefault(child =>
@@ -75,6 +80,20 @@ public sealed class DevelopmentProjectDetector(DevelopmentInsightsRules rules)
         pattern.StartsWith("*.", StringComparison.Ordinal)
             ? name.EndsWith(pattern[1..], StringComparison.OrdinalIgnoreCase)
             : name.Equals(pattern, StringComparison.OrdinalIgnoreCase);
+
+    private bool IsInsideArtifactDirectory(StorageNode directory)
+    {
+        for (StorageNode? current = directory; current is not null; current = current.Parent)
+        {
+            if (rules.ArtifactRules.Any(rule =>
+                    current.Name.Equals(rule.DirectoryName, StringComparison.OrdinalIgnoreCase)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     private sealed class ProjectMatch
     {

@@ -141,10 +141,10 @@ public sealed partial class DevInsightsViewModel : PageViewModel
 
     private void UpdateSummary()
     {
-        DotNetArtifactCount = Recommendations.Count(item => item.Ecosystem == DevelopmentEcosystem.DotNet);
-        NodeArtifactCount = Recommendations.Count(item => item.Ecosystem == DevelopmentEcosystem.NodeJs);
-        PythonArtifactCount = Recommendations.Count(item => item.Ecosystem == DevelopmentEcosystem.Python);
-        GitArtifactCount = Recommendations.Count(item => item.Ecosystem == DevelopmentEcosystem.Git);
+        DotNetArtifactCount = Recommendations.Count(item => item.EcosystemValue == DevelopmentEcosystem.DotNet);
+        NodeArtifactCount = Recommendations.Count(item => item.EcosystemValue == DevelopmentEcosystem.NodeJs);
+        PythonArtifactCount = Recommendations.Count(item => item.EcosystemValue == DevelopmentEcosystem.Python);
+        GitArtifactCount = Recommendations.Count(item => item.EcosystemValue == DevelopmentEcosystem.Git);
         OnPropertyChanged(nameof(HasProjects));
         OnPropertyChanged(nameof(HasRecommendations));
         OnPropertyChanged(nameof(EmptyStateMessage));
@@ -198,6 +198,8 @@ public sealed class DetectedProjectDisplayItem(DetectedDevelopmentProject projec
 
 public sealed class DevelopmentInsightDisplayItem(DevelopmentInsightRecommendation recommendation)
 {
+    public DevelopmentEcosystem EcosystemValue => recommendation.Ecosystem;
+
     public string ProjectName => recommendation.ProjectName;
 
     public string ProjectPath => recommendation.ProjectPath;

@@ -61,7 +61,9 @@ public sealed class DevelopmentInsightsRules
             "build", DevelopmentEcosystem.NodeJs, DevelopmentInsightCategory.BuildArtifact,
             "Puede contener resultados de compilación de un proyecto Node.js.",
             "El nombre no garantiza que el contenido sea generado; podría incluir archivos fuente o entregables únicos.",
-            DevelopmentRiskLevel.High, true);
+            DevelopmentRiskLevel.High, true,
+            ["webpack.config.js", "webpack.config.ts", "vite.config.js", "vite.config.ts",
+                "rollup.config.js", "rollup.config.ts", "angular.json"]);
         yield return new(
             ".next", DevelopmentEcosystem.NodeJs, DevelopmentInsightCategory.BuildArtifact,
             "Contiene resultados de compilación y caché del framework Next.js.",

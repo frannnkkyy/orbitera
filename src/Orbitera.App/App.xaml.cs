@@ -43,8 +43,10 @@ public partial class App : System.Windows.Application
         services.AddSingleton<DevelopmentInsightsAnalyzer>();
         services.AddSingleton<AnalyzeDevelopmentInsightsUseCase>();
         services.AddSingleton<ISnapshotRepository, SqliteSnapshotRepository>();
+        services.AddSingleton<IStorageCapacityProvider, DriveStorageCapacityProvider>();
         services.AddSingleton<CreateStorageSnapshotUseCase>();
         services.AddSingleton<CompareStorageSnapshotsUseCase>();
+        services.AddSingleton<CalculateOrbitScoreUseCase>();
         services.AddSingleton<IFolderPickerService, FolderPickerService>();
         services.AddTransient<OverviewViewModel>();
         services.AddTransient<AtlasViewModel>();

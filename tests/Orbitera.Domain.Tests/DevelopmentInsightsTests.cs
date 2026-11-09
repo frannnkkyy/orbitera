@@ -97,6 +97,24 @@ public class DevelopmentInsightsTests
     }
 
     [Fact]
+    public void ClassifiesBuildOutputOnlyWhenProjectBuildConfigurationIsPresent()
+    {
+        var root = Directory("workspace");
+        var node = Directory("node-project");
+        node.AddChild(File("package.json", 1));
+        node.AddChild(File("vite.config.ts", 1));
+        node.AddChild(DirectoryWithFile("build", "index.html", 100));
+        root.AddChild(node);
+
+        var result = CreateAnalyzer().Analyze(root);
+
+        var recommendation = Assert.Single(result.Recommendations);
+        Assert.Equal("build", recommendation.DirectoryName);
+        Assert.Equal(DevelopmentRiskLevel.High, recommendation.RiskLevel);
+        Assert.Contains("no garantiza", recommendation.DeletionImpact, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void UsesTheNearestMatchingProjectForNestedProjects()
     {
         var root = Directory("workspace");
