@@ -12,22 +12,25 @@ public sealed class DriveStorageCapacityProvider : IStorageCapacityProvider
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
         cancellationToken.ThrowIfCancellationRequested();
 
-        var fullPath = Path.GetFullPath(path);
-        var driveRoot = Path.GetPathRoot(fullPath);
-        if (string.IsNullOrEmpty(driveRoot))
+        return Task.Run<StorageCapacity?>(() =>
         {
-            return Task.FromResult<StorageCapacity?>(null);
-        }
+            cancellationToken.ThrowIfCancellationRequested();
+            var fullPath = Path.GetFullPath(path);
+            var driveRoot = Path.GetPathRoot(fullPath);
+            if (string.IsNullOrEmpty(driveRoot))
+            {
+                return null;
+            }
 
-        var drive = DriveInfo.GetDrives().FirstOrDefault(candidate =>
-            string.Equals(candidate.RootDirectory.FullName, driveRoot, StringComparison.OrdinalIgnoreCase));
+            var drive = DriveInfo.GetDrives().FirstOrDefault(candidate =>
+                string.Equals(candidate.RootDirectory.FullName, driveRoot, StringComparison.OrdinalIgnoreCase));
 
-        if (drive is null || !drive.IsReady)
-        {
-            return Task.FromResult<StorageCapacity?>(null);
-        }
+            if (drive is null || !drive.IsReady)
+            {
+                return null;
+            }
 
-        var capacity = new StorageCapacity(drive.TotalSize, drive.AvailableFreeSpace);
-        return Task.FromResult<StorageCapacity?>(capacity);
+            return new StorageCapacity(drive.TotalSize, drive.AvailableFreeSpace);
+        }, cancellationToken);
     }
 }

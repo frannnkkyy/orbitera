@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Orbitera.App")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+20389bb433b7991d7a4413e0d82f453a687b4cb8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bcf02225f6d21c9d9eefb2f84e9941e0e8c3b44c")]
 [assembly: System.Reflection.AssemblyProductAttribute("Orbitera.App")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Orbitera.App")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -21,6 +21,7 @@ public sealed partial class OverviewViewModel : PageViewModel
 
     private readonly CalculateOrbitScoreUseCase _calculateOrbitScore;
     private readonly StorageAnalysisSession _session;
+    private CancellationTokenSource? _refreshCancellation;
 
     [ObservableProperty]
     private string _scoreDisplay = "—";
@@ -61,17 +62,25 @@ public sealed partial class OverviewViewModel : PageViewModel
 
     public bool CanRefresh => !IsRefreshing;
 
+    public bool CanCancel => IsRefreshing;
+
     public string UnavailableFactorsDisplay => string.Join(", ", UnavailableFactors);
+
+    public bool HasUnavailableFactors => UnavailableFactors.Count > 0;
 
     [RelayCommand(CanExecute = nameof(CanRefresh))]
     private async Task RefreshAsync()
     {
+        _refreshCancellation?.Cancel();
+        _refreshCancellation?.Dispose();
+        _refreshCancellation = new CancellationTokenSource();
+        var cancellation = _refreshCancellation;
         IsRefreshing = true;
         ErrorMessage = string.Empty;
 
         try
         {
-            var result = await _calculateOrbitScore.ExecuteAsync(CancellationToken.None);
+            var result = await _calculateOrbitScore.ExecuteAsync(cancellation.Token);
             LastScanDisplay = _session.CapturedUtc?.ToLocalTime().ToString("g") ?? "No Atlas scan yet";
 
             if (result is null)
@@ -82,10 +91,11 @@ public sealed partial class OverviewViewModel : PageViewModel
                 ScoreFactors.Clear();
                 UnavailableFactors = new ObservableCollection<string>(AllFactorNames);
                 OnPropertyChanged(nameof(UnavailableFactorsDisplay));
+                OnPropertyChanged(nameof(HasUnavailableFactors));
                 return;
             }
 
-            ScoreDisplay = result.Score.ToString("0");
+            ScoreDisplay = $"{result.Score}/100";
             ScoreCoverageDisplay = $"{result.CoveragePercent}% of factor weight available";
             ScoreSummary = result.CoveragePercent == 100
                 ? "All configured factors contributed to this score. It is not a measurement of disk hardware health."
@@ -96,6 +106,7 @@ public sealed partial class OverviewViewModel : PageViewModel
             UnavailableFactors = new ObservableCollection<string>(
                 AllFactorNames.Where(name => !presentFactors.Contains(name)));
             OnPropertyChanged(nameof(UnavailableFactorsDisplay));
+            OnPropertyChanged(nameof(HasUnavailableFactors));
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or
                                            SecurityException or ArgumentException or SnapshotPersistenceException or
@@ -106,16 +117,28 @@ public sealed partial class OverviewViewModel : PageViewModel
             ScoreCoverageDisplay = "Calculation unavailable";
             ScoreSummary = "The score was not calculated because one or more data sources could not be read.";
         }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+        {
+            ScoreCoverageDisplay = "Calculation cancelled";
+            ScoreSummary = "No new score was produced; the last visible result may have come from an earlier refresh.";
+        }
         finally
         {
             IsRefreshing = false;
+            _refreshCancellation?.Dispose();
+            _refreshCancellation = null;
         }
     }
+
+    [RelayCommand(CanExecute = nameof(CanCancel))]
+    private void CancelRefresh() => _refreshCancellation?.Cancel();
 
     partial void OnIsRefreshingChanged(bool value)
     {
         OnPropertyChanged(nameof(CanRefresh));
+        OnPropertyChanged(nameof(CanCancel));
         RefreshCommand.NotifyCanExecuteChanged();
+        CancelRefreshCommand.NotifyCanExecuteChanged();
     }
 }
 

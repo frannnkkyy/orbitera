@@ -42,6 +42,8 @@ public sealed partial class CleanupPlannerViewModel : PageViewModel
 
     public bool CanRefresh => !IsLoading;
 
+    public bool CanCancel => IsLoading;
+
     public bool CanCreatePlan => !IsLoading && Candidates.Any(candidate => candidate.IsSelected);
 
     public bool HasCandidates => Candidates.Count > 0;
@@ -49,6 +51,9 @@ public sealed partial class CleanupPlannerViewModel : PageViewModel
     public bool HasPlan => Plan is not null;
 
     public bool HasNoCandidates => !HasCandidates && !IsLoading;
+
+    public string PlanEstimatedBytesDisplay =>
+        Plan is null ? "—" : FormatSize(Plan.EstimatedRecoverableBytes);
 
     public string EmptyStateMessage => HasCandidates
         ? string.Empty
@@ -110,6 +115,9 @@ public sealed partial class CleanupPlannerViewModel : PageViewModel
         }
     }
 
+    [RelayCommand(CanExecute = nameof(CanCancel))]
+    private void CancelRefresh() => _refreshCancellation?.Cancel();
+
     [RelayCommand(CanExecute = nameof(CanCreatePlan))]
     private void CreatePlan()
     {
@@ -153,14 +161,23 @@ public sealed partial class CleanupPlannerViewModel : PageViewModel
         OnPropertyChanged(nameof(HasCandidates));
         OnPropertyChanged(nameof(HasNoCandidates));
         OnPropertyChanged(nameof(HasPlan));
+        OnPropertyChanged(nameof(PlanEstimatedBytesDisplay));
         OnPropertyChanged(nameof(EmptyStateMessage));
         CreatePlanCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnPlanChanged(CleanupPlan? value)
+    {
+        OnPropertyChanged(nameof(HasPlan));
+        OnPropertyChanged(nameof(PlanEstimatedBytesDisplay));
     }
 
     partial void OnIsLoadingChanged(bool value)
     {
         OnPropertyChanged(nameof(CanRefresh));
+        OnPropertyChanged(nameof(CanCancel));
         RefreshCommand.NotifyCanExecuteChanged();
+        CancelRefreshCommand.NotifyCanExecuteChanged();
         UpdateState();
     }
 
@@ -202,9 +219,21 @@ public sealed partial class CleanupCandidateDisplayItem : ObservableObject
 
     public string SizeDisplay => FormatSize(SizeBytes);
 
-    public string Ecosystem => Recommendation.Ecosystem.ToString();
+    public string Ecosystem => Recommendation.Ecosystem switch
+    {
+        DevelopmentEcosystem.DotNet => ".NET",
+        DevelopmentEcosystem.NodeJs => "Node.js",
+        DevelopmentEcosystem.Python => "Python",
+        _ => "Git"
+    };
 
-    public string Category => Recommendation.Category.ToString();
+    public string Category => Recommendation.Category switch
+    {
+        DevelopmentInsightCategory.Dependency => "Dependency",
+        DevelopmentInsightCategory.Cache => "Cache",
+        DevelopmentInsightCategory.BuildArtifact => "Build artifact",
+        _ => "Version control"
+    };
 
     public string Risk => Recommendation.RiskLevel.ToString();
 

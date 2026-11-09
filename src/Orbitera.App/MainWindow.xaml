@@ -38,6 +38,8 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel MaxWidth="560" VerticalAlignment="Center">
                             <Border HorizontalAlignment="Left"
@@ -113,6 +115,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="Orbit Score" Style="{StaticResource CaptionTextStyle}" />
@@ -130,6 +133,13 @@
                                     Content="Refresh"
                                     Command="{Binding RefreshCommand}"
                                     IsEnabled="{Binding CanRefresh}"
+                                    Style="{StaticResource QuietButtonStyle}"
+                                    VerticalAlignment="Top" />
+                            <Button Grid.Column="2"
+                                    Margin="8,0,0,0"
+                                    Content="Cancel"
+                                    Command="{Binding CancelRefreshCommand}"
+                                    IsEnabled="{Binding CanCancel}"
                                     Style="{StaticResource QuietButtonStyle}"
                                     VerticalAlignment="Top" />
                         </Grid>
@@ -197,7 +207,8 @@
                         <TextBlock Margin="0,10,0,0"
                                    Text="{Binding UnavailableFactorsDisplay, StringFormat='Not currently measured: {0}'}"
                                    Style="{StaticResource CaptionTextStyle}"
-                                   TextWrapping="Wrap" />
+                                   TextWrapping="Wrap"
+                                   Visibility="{Binding HasUnavailableFactors, Converter={StaticResource BooleanToVisibilityConverter}}" />
                     </StackPanel>
                 </Border>
 
@@ -792,6 +803,7 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="Latest Atlas scan" Style="{StaticResource SectionTitleTextStyle}" />
@@ -971,6 +983,7 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="Read-only simulation"
@@ -988,6 +1001,12 @@
                                 IsEnabled="{Binding CanRefresh}"
                                 Style="{StaticResource QuietButtonStyle}" />
                         <Button Grid.Column="2"
+                                Margin="0,0,10,0"
+                                Content="Cancel"
+                                Command="{Binding CancelRefreshCommand}"
+                                IsEnabled="{Binding CanCancel}"
+                                Style="{StaticResource QuietButtonStyle}" />
+                        <Button Grid.Column="3"
                                 Content="Create simulation"
                                 Command="{Binding CreatePlanCommand}"
                                 IsEnabled="{Binding CanCreatePlan}"
@@ -1079,7 +1098,7 @@
                         <DockPanel>
                             <TextBlock Text="Plan preview" Style="{StaticResource SectionTitleTextStyle}" />
                             <TextBlock DockPanel.Dock="Right"
-                                       Text="{Binding Plan.EstimatedRecoverableBytes, StringFormat='Estimated recovery: {0:N0} bytes'}"
+                                       Text="{Binding PlanEstimatedBytesDisplay, StringFormat='Estimated recovery: {0}'}"
                                        Foreground="{StaticResource AccentBrush}"
                                        FontWeight="SemiBold" />
                         </DockPanel>
